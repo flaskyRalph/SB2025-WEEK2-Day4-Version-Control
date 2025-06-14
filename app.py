@@ -70,6 +70,51 @@ def create_user():
     return render_template('create.html')
 
 
+@app.route('/update/<int:userID>', methods=['GET', 'POST'])
+def update_user(userID):
+    user = Users.query.get(userID)
+    if not user:
+        flash("User not found!", "danger")
+        return redirect(url_for('homePage'))
+
+    if request.method == 'POST':
+        old_data = {"First Name": user.Fname, "Last Name": user.Lname, "email": user.email}
+
+        user.Fname = request.form['Fname']
+        user.Lname = request.form['Lname']
+        user.email = request.form['email']
+
+        db.session.commit()
+
+        updated_data = {"First Name": user.Fname, "Last Name": user.Lname, "email": user.email}
+        changes = [
+            f"{field} changed from '{old_data[field]}' to '{updated_data[field]}'"
+            for field in old_data if old_data[field] != updated_data[field]
+        ]
+        if changes:
+            log_action(f"Updated user {user.Fname}: " + ", ".join(changes), user.userID)
+            flash("User updated successfully!", "success")
+        else:
+            flash("No changes made.", "info")
+
+        return redirect(url_for('homePage'))
+
+    return render_template('update.html', user=user)
+
+
+@app.route('/delete/<int:userID>')
+def delete_user(userID):
+    user = Users.query.get(userID)
+    if user:
+        log_action(f"Deleted user {user.Fname} {user.Lname}", user.userID)
+        db.session.delete(user)
+        db.session.commit()
+        flash("User deleted successfully!", "warning")
+    else:
+        flash("User not found!", "danger")
+    return redirect(url_for('homePage'))
+
+
 @app.route('/logs')
 def view_logs():
     logs = Log.query.all()

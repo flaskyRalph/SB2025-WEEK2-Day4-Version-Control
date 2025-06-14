@@ -18,6 +18,7 @@
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,10 @@
                         <td>{{ user.Fname }}</td>
                         <td>{{ user.Lname }}</td>
                         <td>{{ user.email }}</td>
+                        <td>
+                            <a href="{{ url_for('update_user', userID=user.userID) }}" class="btn btn-warning btn-sm">Edit</a>
+                            <a href="{{ url_for('delete_user', userID=user.userID) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
